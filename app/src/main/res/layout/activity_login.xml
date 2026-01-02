@@ -22,7 +22,19 @@
         android:textStyle="bold"
         android:textColor="#333333"
         android:layout_marginBottom="32dp"/>
-
+    <TextView
+        android:id="@+id/tvErrorMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="#FFEBEE"
+        android:padding="12dp"
+        android:text="Error message here"
+        android:textColor="#D32F2F"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        />
     <EditText
         android:id="@+id/etUsername"
         android:layout_width="match_parent"

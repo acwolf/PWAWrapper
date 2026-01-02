@@ -1,0 +1,38 @@
+# QUICK CUSTOMIZATION GUIDE
+
+### 1. GET STARTED (Required)
+To set up your project identity and connection, complete these two steps:
+
+A. SET THE PACKAGE ID:
+Open 'app/build.gradle.kts' and update 'applicationId' (e.g., "com.yourname.project").
+
+B. SET THE API URL:
+Open 'local.properties' in the project root and add this line:
+api.url="https://api.yourdomain.com"
+(Note: This file is ignored by version control to keep your endpoints private).
+
+Once finished, go to 'Build > Rebuild Project'. The app will use this address as 'BuildConfig.BASE_URL'.
+
+---
+
+### 2. UI CUSTOMIZATION
+Use these locations to change the look and feel of the app:
+
+* App Name: Change 'app_name' in 'res/values/strings.xml'
+* App Icon: Right-click 'res' folder -> New -> Image Asset
+* Colors: Edit 'res/values/themes.xml' (Update 'colorPrimary' and 'colorSecondary')
+
+---
+
+### 3. HOW TO ADD AN API KEY (Optional)
+If you need to add a secret API key (for Stripe, Maps, etc.) follow these three steps:
+
+Step A: Add the key to 'local.properties':
+my.api.key="your-secret-key-123"
+
+Step B: Register it in 'app/build.gradle.kts' inside 'defaultConfig':
+val mySecret = properties.getProperty("my.api.key") ?: "\"default\""
+buildConfigField("String", "SECRET_KEY", mySecret)
+
+Step C: Access it in your Kotlin code:
+val key = BuildConfig.SECRET_KEY

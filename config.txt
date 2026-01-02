@@ -1,0 +1,6 @@
+package com.acwolf.pwawrapper
+
+// Top-level variables are accessible anywhere in the app
+const val GLOBAL_URL = "https://test-api.acwolf.com"
+const val GLOBAL_PWA_URL = "https://test.acwolf.com/app"
+

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,6 +9,17 @@ android {
     namespace = "com.acwolf.pwawrapper"
     compileSdk = 35
 
+    // 1. Load local.properties for your private URL
+    val properties = Properties().apply {
+        val propertiesFile = project.rootProject.file("local.properties")
+        if (propertiesFile.exists()) {
+            load(propertiesFile.inputStream())
+        }
+    }
+
+    // 2. Prepare the URL for code injection
+    val apiUrl = properties.getProperty("api.url") ?: "\"https://fallback-api.com\""
+
     defaultConfig {
         applicationId = "com.acwolf.pwawrapper"
         minSdk = 26
@@ -15,41 +28,30 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 3. This creates BuildConfig.BASE_URL
+        buildConfigField("String", "BASE_URL", apiUrl)
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
+    buildFeatures {
+        buildConfig = true
     }
 
+    // ... (rest of your build types and compile options) ...
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        viewBinding = true
     }
 }
 
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    // Core PWA Wrapper Components
-    implementation("androidx.biometric:biometric:1.2.0-alpha05")
     implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
 }
