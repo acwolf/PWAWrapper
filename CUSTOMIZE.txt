@@ -1,38 +1,48 @@
-# QUICK CUSTOMIZATION GUIDE
+# 🏗️ QUICK CUSTOMIZATION GUIDE
 
 ### 1. GET STARTED (Required)
-To set up your project identity and connection, complete these two steps:
+Open 'local.properties' in the project root and add these two lines to configure your connection:
 
-A. SET THE PACKAGE ID:
-Open 'app/build.gradle.kts' and update 'applicationId' (e.g., "com.yourname.project").
+app.url="https://your-website.com"
+app.login="https://api.yourdomain.com/login"
 
-B. SET THE API URL:
-Open 'local.properties' in the project root and add this line:
-api.url="https://api.yourdomain.com"
-(Note: This file is ignored by version control to keep your endpoints private).
+(Note: local.properties is by default ignored by version control.
 
-Once finished, go to 'Build > Rebuild Project'. The app will use this address as 'BuildConfig.BASE_URL'.
+**NOTE:** The 'app.login' endpoint must accept a POST request with JSON: {"username": "...", "password": "..."} and return 200 OK on success.
+
+Once finished, go to 'Build > Rebuild Project'.
 
 ---
 
 ### 2. UI CUSTOMIZATION
-Use these locations to change the look and feel of the app:
-
-* App Name: Change 'app_name' in 'res/values/strings.xml'
-* App Icon: Right-click 'res' folder -> New -> Image Asset
-* Colors: Edit 'res/values/themes.xml' (Update 'colorPrimary' and 'colorSecondary')
+* **App Name:** Change 'app_name' in 'res/values/strings.xml'.
+* **Colors:** Edit 'res/values/themes.xml' (Update 'colorPrimary' to match your brand).
+* **App Icon:** Right-click 'res' folder -> New -> Image Asset.
 
 ---
 
-### 3. HOW TO ADD AN API KEY (Optional)
-If you need to add a secret API key (for Stripe, Maps, etc.) follow these three steps:
+### 3. HOW TO ADD A LOGO (Optional)
+If you want to add a visual logo to the Login screen:
 
-Step A: Add the key to 'local.properties':
-my.api.key="your-secret-key-123"
+1. **Add the File:** Drag your 'logo.png' file into the 'app/src/main/res/drawable' folder. Use lowercase only.
 
-Step B: Register it in 'app/build.gradle.kts' inside 'defaultConfig':
+2. **Add the View:** Open 'activity_login.xml' and paste this block at the top of the LinearLayout:
+
+   <ImageView
+       android:layout_width="150dp"
+       android:layout_height="150dp"
+       android:src="@drawable/logo"
+       android:layout_marginBottom="24dp"
+       android:contentDescription="Logo" />
+
+---
+
+### 4. HOW TO ADD AN API KEY (Optional)
+Step A: Add to 'local.properties':
+my.api.key="your-secret-key"
+
+Step B: Register in 'app/build.gradle.kts' inside 'defaultConfig':
 val mySecret = properties.getProperty("my.api.key") ?: "\"default\""
 buildConfigField("String", "SECRET_KEY", mySecret)
 
-Step C: Access it in your Kotlin code:
-val key = BuildConfig.SECRET_KEY
+Step C: Access in Kotlin via 'BuildConfig.SECRET_KEY'.

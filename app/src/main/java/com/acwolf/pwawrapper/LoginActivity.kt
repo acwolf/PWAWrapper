@@ -20,7 +20,6 @@ class LoginActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // Session check
         val sharedPref = getSharedPreferences("PWA_PREFS", Context.MODE_PRIVATE)
         if (sharedPref.getBoolean("IS_LOGGED_IN", false)) {
             navigateToMain()
@@ -30,43 +29,52 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         val etUsername = findViewById<EditText>(R.id.etUsername)
+        val etPassword = findViewById<EditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvErrorMessage = findViewById<TextView>(R.id.tvErrorMessage)
 
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString().trim()
+            val user = etUsername.text.toString().trim()
+            val pass = etPassword.text.toString().trim()
 
-            if (username.isEmpty()) {
-                tvErrorMessage.text = "Username required"
+            if (user.isEmpty() || pass.isEmpty()) {
+                tvErrorMessage.text = "All fields required"
                 tvErrorMessage.visibility = View.VISIBLE
-            } else {
-                thread {
-                    try {
-                        // USES GLOBAL URL FROM GRADLE
-                        val url = URL("${BuildConfig.BASE_URL}/login")
-                        val conn = url.openConnection() as HttpURLConnection
-                        conn.requestMethod = "POST"
-                        conn.connectTimeout = 5000
+                return@setOnClickListener
+            }
 
-                        val code = conn.responseCode
-                        if (code == 200) {
-                            sharedPref.edit().putBoolean("IS_LOGGED_IN", true).apply()
-                            runOnUiThread { navigateToMain() }
-                        } else {
-                            // Parse JSON error from server
-                            val errorJson = conn.errorStream.bufferedReader().readText()
-                            val msg = JSONObject(errorJson).optString("message", "Login Failed")
-                            runOnUiThread {
-                                tvErrorMessage.text = msg
-                                tvErrorMessage.visibility = View.VISIBLE
-                            }
-                        }
-                    } catch (e: Exception) {
+            thread {
+                try {
+                    // Endpoint matches your requirement
+                    val url = URL(BuildConfig.LOGIN_URL)
+                    val conn = url.openConnection() as HttpURLConnection
+                    conn.requestMethod = "POST"
+                    conn.setRequestProperty("Content-Type", "application/json")
+                    conn.doOutput = true
+
+                    // Create JSON Body
+                    val jsonBody = JSONObject().apply {
+                        put("username", user)
+                        put("password", pass)
+                    }
+
+                    conn.outputStream.use { os ->
+                        os.write(jsonBody.toString().toByteArray())
+                    }
+
+                    if (conn.responseCode == 200) {
+                        sharedPref.edit().putBoolean("IS_LOGGED_IN", true).apply()
+                        runOnUiThread { navigateToMain() }
+                    } else {
                         runOnUiThread {
-                            // YOUR SPECIFIC ERROR MESSAGE
-                            tvErrorMessage.text = "Can not connect to ${BuildConfig.BASE_URL}"
+                            tvErrorMessage.text = "Login failed (${conn.responseCode})"
                             tvErrorMessage.visibility = View.VISIBLE
                         }
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        tvErrorMessage.text = "Network Error: ${e.localizedMessage}"
+                        tvErrorMessage.visibility = View.VISIBLE
                     }
                 }
             }

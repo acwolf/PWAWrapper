@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         settings.domStorageEnabled = true // Essential for PWA modern web apps
 
         // Loads the main site using the injected Build variable
-        webView.loadUrl(BuildConfig.BASE_URL)
+        webView.loadUrl(BuildConfig.WEB_URL)
     }
 
     // Handle back button so it doesn't close the app immediately

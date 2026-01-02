@@ -18,7 +18,8 @@ android {
     }
 
     // 2. Prepare the URL for code injection
-    val apiUrl = properties.getProperty("api.url") ?: "\"https://fallback-api.com\""
+    val appUrl = properties.getProperty("app.url") ?: "\"https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/Checking_that_your_web_site_is_working_properly\""
+    val loginUrl = properties.getProperty("app.login") ?: "\"https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/Checking_that_your_web_site_is_working_properly\""
 
     defaultConfig {
         applicationId = "com.acwolf.pwawrapper"
@@ -30,8 +31,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // 3. This creates BuildConfig.BASE_URL
-        buildConfigField("String", "BASE_URL", apiUrl)
-    }
+        buildConfigField("String", "WEB_URL", appUrl)
+        buildConfigField("String", "LOGIN_URL", loginUrl)    }
 
     buildFeatures {
         buildConfig = true
