@@ -1,95 +1,75 @@
 package com.acwolf.pwawrapper
 
-import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.webkit.*
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.*
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var webView: WebView
-    private var isReady = false
-    private val webUrl = "https://your-pwa-url.com" // Update to your site
+    private val pwaUrl = "https://your-pwa-url.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        splashScreen.setKeepOnScreenCondition { !isReady }
+        setContentView(R.layout.activity_main)
 
-        checkSecurity()
+        webView = findViewById(R.id.webview)
+        setupWebView()
+        authenticateUser()
     }
 
-    private fun checkSecurity() {
-        val biometricManager = BiometricManager.from(this)
-        val authenticators = BIOMETRIC_STRONG or DEVICE_CREDENTIAL
-
-        when (biometricManager.canAuthenticate(authenticators)) {
-            BiometricManager.BIOMETRIC_SUCCESS -> showBiometricPrompt()
-            else -> startAppLogic() // Robust: Let them in if biometrics aren't set up
-        }
-    }
-
-    private fun showBiometricPrompt() {
+    private fun authenticateUser() {
         val executor = ContextCompat.getMainExecutor(this)
-        val prompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                startAppLogic()
-            }
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                if (errorCode == BiometricPrompt.ERROR_USER_CANCELED) finish()
-                else Toast.makeText(this@MainActivity, "Auth Required", Toast.LENGTH_SHORT).show()
-            }
-        })
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    webView.loadUrl(pwaUrl)
+                }
 
-        val info = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Identity Verification")
-            .setSubtitle("Please verify your identity")
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    // If no finger set up, fallback to URL anyway since they logged in once
+                    if (errorCode == BiometricPrompt.ERROR_NO_BIOMETRICS || errorCode == BiometricPrompt.ERROR_HW_NOT_PRESENT) {
+                        webView.loadUrl(pwaUrl)
+                    } else {
+                        finish()
+                    }
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Secure Access")
+            .setSubtitle("Confirm Identity")
             .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
             .build()
 
-        prompt.authenticate(info)
+        biometricPrompt.authenticate(promptInfo)
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun startAppLogic() {
-        setContentView(R.layout.activity_main)
-        webView = findViewById(R.id.webview)
-
-        ViewCompat.setOnApplyWindowInsetsListener(webView) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        webView.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            databaseEnabled = true
-        }
+    private fun setupWebView() {
+        val settings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
 
         webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                isReady = true
-                webView.visibility = View.VISIBLE
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url.toString()
+                if (url.startsWith("file:///android_asset/")) return false
+                return if (url.contains("your-pwa-url.com")) {
+                    false
+                } else {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    true
+                }
             }
         }
-
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (webView.canGoBack()) webView.goBack() else finish()
-            }
-        })
-        webView.loadUrl(webUrl)
     }
 }
