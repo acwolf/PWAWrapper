@@ -1,48 +1,35 @@
 # 🏗️ QUICK CUSTOMIZATION GUIDE
 
 ### 1. GET STARTED (Required)
-Open 'local.properties' in the project root and add these two lines to configure your connection:
-
+Open 'local.properties' and add:
 app.url="https://your-website.com"
-app.login="https://api.yourdomain.com/login"
-
-(Note: local.properties is by default ignored by version control.
-
-**NOTE:** The 'app.login' endpoint must accept a POST request with JSON: {"username": "...", "password": "..."} and return 200 OK on success.
+app.login="https://api.yourdomain.com/api/login"
 
 Once finished, go to 'Build > Rebuild Project'.
 
 ---
 
 ### 2. UI CUSTOMIZATION
-* **App Name:** Change 'app_name' in 'res/values/strings.xml'.
-* **Colors:** Edit 'res/values/themes.xml' (Update 'colorPrimary' to match your brand).
-* **App Icon:** Right-click 'res' folder -> New -> Image Asset.
+* **App Name:** 'res/values/strings.xml' -> 'app_name'.
+* **Colors:** 'res/values/themes.xml' -> 'colorPrimary'.
+* **App Icon:** Right-click 'res' -> New -> Image Asset.
 
 ---
 
 ### 3. HOW TO ADD A LOGO (Optional)
-If you want to add a visual logo to the Login screen:
-
-1. **Add the File:** Drag your 'logo.png' file into the 'app/src/main/res/drawable' folder. Use lowercase only.
-
-2. **Add the View:** Open 'activity_login.xml' and paste this block at the top of the LinearLayout:
+If you want to add a logo to the Login screen:
+1. **Add File:** Put 'logo.png' in 'app/src/main/res/drawable'.
+2. **Add View:** In 'activity_login.xml', add an <ImageView> at the top:
 
    <ImageView
        android:layout_width="150dp"
        android:layout_height="150dp"
        android:src="@drawable/logo"
-       android:layout_marginBottom="24dp"
-       android:contentDescription="Logo" />
+       android:layout_marginBottom="24dp" />
 
 ---
 
-### 4. HOW TO ADD AN API KEY (Optional)
-Step A: Add to 'local.properties':
-my.api.key="your-secret-key"
-
-Step B: Register in 'app/build.gradle.kts' inside 'defaultConfig':
-val mySecret = properties.getProperty("my.api.key") ?: "\"default\""
-buildConfigField("String", "SECRET_KEY", mySecret)
-
-Step C: Access in Kotlin via 'BuildConfig.SECRET_KEY'.
+### 4. OFFLINE HANDLING
+The app uses a 'webview' component.
+* To customize the offline screen, edit 'layout_offline.xml'.
+* The app checks internet status via ConnectivityManager before loading.
