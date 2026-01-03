@@ -3,46 +3,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="32dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome"
+        android:text="Welcome Back"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="32dp"/>
+
     <TextView
-        android:id="@+id/tvErrorMessage"
-        android:layout_width="wrap_content"
+        android:id="@+id/error_text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#FF0000"
-        android:layout_marginTop="16dp"
+        android:textColor="#B00020"
+        android:textAlignment="center"
+        android:text="Error message goes here"
         android:visibility="gone"
-        android:text="Error Message"/>
+        android:layout_marginBottom="16dp"
+        android:textStyle="bold"/>
 
     <EditText
-        android:id="@+id/etUsername"
+        android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Username"
-        android:inputType="text"
-        android:layout_marginBottom="16dp"/>
+        android:inputType="text"/>
 
     <EditText
-        android:id="@+id/etPassword"
+        android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password"
         android:inputType="textPassword"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginTop="16dp"/>
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login" />
-
+        android:text="Login"
+        android:layout_marginTop="24dp"/>
 
 </LinearLayout>
